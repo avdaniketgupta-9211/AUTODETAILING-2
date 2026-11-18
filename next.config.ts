@@ -24,6 +24,8 @@ const csp = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // CI builds are non-interactive; the upgrade reminder would otherwise halt them.
+  experimental: { agentUpgrade: false },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 828, 1080, 1280, 1600, 1920],

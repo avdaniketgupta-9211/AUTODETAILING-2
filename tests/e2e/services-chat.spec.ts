@@ -28,6 +28,7 @@ test("Services dropdown supports keyboard navigation", async ({ page, isMobile }
   test.skip(isMobile, "desktop keyboard behaviour");
 
   await page.goto("/");
+  await page.waitForLoadState("networkidle");
   const trigger = page.getByRole("button", { name: "Show services menu" });
   await trigger.focus();
   await expect(trigger).toHaveAttribute("aria-expanded", "true");

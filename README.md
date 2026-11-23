@@ -4,7 +4,7 @@ Cinematic, editorial website for Rollings Automotive (Fullerton, CA — est. 197
 Built with Next.js App Router, TypeScript, Tailwind CSS v4, GSAP + ScrollTrigger, Lenis, Drizzle ORM/PostgreSQL.
 
 ## Routes
-`/` (11-chapter homepage) · `/services` · `/classic-cars` · `/fleet-maintenance` · `/specials` · `/contact` · `/api/contact` · `/api/health` · `/sitemap.xml` · `/robots.txt`
+`/` (11-chapter homepage) · `/services` · `/services/[slug]` (13 dedicated service pages) · `/classic-cars` · `/fleet-maintenance` · `/specials` · `/contact` · `/api/contact` · `/api/chat` · `/api/chat/lead` · `/api/health` · `/sitemap.xml` · `/robots.txt`
 
 ## Structure
 ```
@@ -12,10 +12,10 @@ src/app/            routes, metadata, sitemap, robots, API
 src/components/
   layout/           Navbar, MobileMenu, Footer, BackToTop, MotionProvider (Lenis + reveals)
   sections/         Hero, BrandIntroduction, Philosophy, Services, ClassicCars, Fleet, Brands, Workshop, Testimonials, Contact, PageHeader
-  ui/               Button, SectionHeading/Lines, ServiceItem, ImageReveal, VideoBackground, ContactForm
+  ui/               Button, SectionHeading/Lines, ServiceItem, ImageReveal, VideoBackground, ContactForm, Chatbot
 src/animations/     gsap.ts, heroAnimations.ts, scrollAnimations.ts (data-attribute motion language)
 src/data/           business.ts, services.ts, testimonials.ts, navigation.ts (verified content)
-src/lib/            validation.ts (shared client/server), utils.ts
+src/lib/            validation.ts (shared client/server), chat-knowledge.ts (verified AI context + fallback), request-guard.ts, utils.ts
 src/db/             Drizzle schema (inquiries table)
 tests/unit          Vitest (validation, spam heuristics, content integrity)
 tests/e2e           Playwright (routes, nav, form, overflow at 7 widths, reduced motion, a11y basics)
@@ -27,9 +27,11 @@ tests/e2e           Playwright (routes, nav, form, overflow at 7 widths, reduced
 | `DATABASE_URL` | yes | PostgreSQL connection (contact inquiries) |
 | `NEXT_PUBLIC_SITE_URL` | recommended | Canonical URLs/sitemap (default `https://rollingsautomotive.com`) |
 | `INQUIRY_SALT` | recommended | Salt for hashed IPs used in rate-limiting |
-| `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` | optional | Email notification for each inquiry via Resend |
+| `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` | optional | Email notification for each inquiry or chat lead via Resend |
+| `OPENAI_API_KEY`, `OPENAI_MODEL` | optional | Server-side AI chat. Without a key, `/api/chat` uses the verified built-in knowledge-base responder (no external calls, no key in the browser). |
+| `LEAD_WEBHOOK_URL`, `LEAD_WEBHOOK_TOKEN` | optional | GoHighLevel/CRM webhook for chat estimate requests. When set, a rejected webhook is **not** reported as success. |
 
-Without the Resend variables, inquiries are still saved to the `inquiries` table. Staff can read them with:
+Chat leads are stored in the `inquiries` table as `service = "Chat estimate request"`. In local development only (no `DATABASE_URL` / webhook), they are appended to the gitignored `.data/chat-leads.jsonl` so the flow can be tested. Without Resend, inquiries are still saved to the `inquiries` table. Staff can read them with:
 `psql $DATABASE_URL -c "select created_at,name,email,phone,service,message from inquiries order by created_at desc"`
 
 ## Commands

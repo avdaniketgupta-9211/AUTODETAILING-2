@@ -46,6 +46,7 @@ test("topic is preselected from query string", async ({ page }) => {
 
 test("navigation works on desktop and mobile", async ({ page, isMobile }) => {
   await page.goto("/");
+  await page.waitForLoadState("networkidle");
   if (isMobile) {
     await page.getByRole("button", { name: /open menu/i }).click();
     await page.getByRole("dialog").getByRole("link", { name: /services/i }).click();

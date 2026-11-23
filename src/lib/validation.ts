@@ -64,3 +64,47 @@ export function isLikelySpam(input: ContactInput, now = Date.now()): boolean {
   const links = (input.message.match(/https?:\/\//gi) ?? []).length;
   return links > 2;
 }
+
+/* ─────────────────── Chat estimate-request lead (4 fields) ─────────────────── */
+
+export type ChatLeadInput = {
+  name: string;
+  phone: string;
+  email: string;
+  message: string;
+  /** honeypot — must stay empty */
+  company: string;
+  /** ms timestamp when the form was rendered */
+  startedAt: number;
+};
+
+export type ChatLeadErrors = Partial<Record<keyof ChatLeadInput, string>>;
+
+/** Normalises the chat lead form. Email is optional; phone is required. */
+export function normalizeLead(raw: Record<string, unknown>): ChatLeadInput {
+  const started = Number(raw.startedAt);
+  return {
+    name: str(raw.name, 120),
+    phone: str(raw.phone, 30),
+    email: str(raw.email, 200).toLowerCase(),
+    message: str(raw.message, 3000),
+    company: str(raw.company, 200),
+    startedAt: Number.isFinite(started) ? started : 0,
+  };
+}
+
+export function validateLead(input: ChatLeadInput): ChatLeadErrors {
+  const errors: ChatLeadErrors = {};
+  if (input.name.length < 2) errors.name = "Please enter your name.";
+  if (!PHONE_RE.test(input.phone)) errors.phone = "Please enter a valid phone number.";
+  if (input.email && !EMAIL_RE.test(input.email)) errors.email = "Please enter a valid email address.";
+  if (input.message.length < 10) errors.message = "Please tell us a little more (at least 10 characters).";
+  return errors;
+}
+
+export function isLikelySpamLead(input: ChatLeadInput, now = Date.now()): boolean {
+  if (input.company) return true;
+  if (!input.startedAt || now - input.startedAt < MIN_FILL_MS) return true;
+  if (now - input.startedAt > 60 * 60 * 1000) return true;
+  return (input.message.match(/https?:\/\//gi) ?? []).length > 2;
+}

@@ -5,6 +5,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { MotionProvider } from "@/components/layout/MotionProvider";
+import { Chatbot } from "@/components/ui/Chatbot";
 import { business, siteUrl } from "@/data/business";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Navbar />
           <main id="main">{children}</main>
           <Footer />
+          <Chatbot />
         </MotionProvider>
       </body>
     </html>

@@ -1,11 +1,14 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
-}
+/**
+ * Page-data collection runs at build time, including on previews that do not
+ * carry the production DATABASE_URL. Creating a Pool is lazy (no connection is
+ * opened until a query), so a placeholder keeps builds working; routes that
+ * actually query still fail clearly at request time when no URL is configured.
+ */
+const connectionString =
+  process.env.DATABASE_URL || "postgresql://invalid:invalid@127.0.0.1:5432/invalid";
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
@@ -14,7 +17,7 @@ const globalForDb = globalThis as typeof globalThis & {
 export const pool =
   globalForDb.__arenaNextJsPostgresqlPool ??
   new Pool({
-    connectionString: databaseUrl,
+    connectionString,
   });
 
 if (process.env.NODE_ENV !== "production") {

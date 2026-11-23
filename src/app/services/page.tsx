@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { services, additionalServices } from "@/data/services";
 import { business } from "@/data/business";
 import { PageHeader } from "@/components/sections/PageHeader";
@@ -32,9 +33,9 @@ export default function ServicesPage() {
         <div className="wrap">
           <nav aria-label="Jump to a service" className="mb-20 flex flex-wrap gap-x-6 gap-y-3 border-y border-line py-6" data-reveal="fade">
             {services.map((s) => (
-              <a key={s.slug} href={`#${s.slug}`} className="u-link pb-0.5 text-xs uppercase tracking-[0.2em] text-mute hover:text-bone">
+              <Link key={s.slug} href={`/services/${s.slug}`} className="u-link pb-0.5 text-xs uppercase tracking-[0.2em] text-mute hover:text-bone">
                 {s.name}
-              </a>
+              </Link>
             ))}
           </nav>
 

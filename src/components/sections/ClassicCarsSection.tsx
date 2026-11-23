@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { classicGallery } from "@/data/navigation";
 import { registerGsap, prefersReducedMotion } from "@/animations/gsap";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +15,15 @@ const PILLARS = [
   { title: "Custom builds", body: "We love unique cars. Whatever your ideas and visions are, we’re here to help bring them to life." },
 ];
 
+/**
+ * ScrollTrigger's `pin` wraps the section in a `pin-spacer` div. React must
+ * revert that wrapper during the DOM-deletion commit (not in a deferred
+ * passive effect), otherwise navigation throws `removeChild` and unmounts the
+ * tree. Layout effects clean up synchronously before nodes are removed; the
+ * isomorphic alias avoids an SSR warning.
+ */
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 type Props = { headingLevel?: "h1" | "h2"; chapter?: string };
 
 export function ClassicCarsSection({ headingLevel = "h2", chapter = "05" }: Props) {
@@ -23,7 +32,7 @@ export function ClassicCarsSection({ headingLevel = "h2", chapter = "05" }: Prop
   const progressRef = useRef<HTMLSpanElement>(null);
   const Heading = headingLevel;
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const section = sectionRef.current;
     const track = trackRef.current;
     if (!section || !track || prefersReducedMotion()) return;

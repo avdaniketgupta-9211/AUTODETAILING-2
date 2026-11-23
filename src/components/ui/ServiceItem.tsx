@@ -16,7 +16,7 @@ export function ServiceItem({ service, index, active, onActivate }: Props) {
   return (
     <li data-stagger-item className="border-t border-line last:border-b">
       <Link
-        href={`/services#${service.slug}`}
+        href={`/services/${service.slug}`}
         onMouseEnter={onActivate}
         onFocus={onActivate}
         className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-4 py-5 md:grid-cols-[4rem_1fr_auto] md:py-7"

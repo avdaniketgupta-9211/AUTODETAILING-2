@@ -28,9 +28,12 @@ export function ContactForm() {
   const [serverMsg, setServerMsg] = useState("");
 
   useEffect(() => {
-    setStartedAt(Date.now());
-    const topic = new URLSearchParams(window.location.search).get("topic");
-    if (topic && TOPIC_MAP[topic]) setService(TOPIC_MAP[topic]);
+    const id = setTimeout(() => {
+      setStartedAt(Date.now());
+      const topic = new URLSearchParams(window.location.search).get("topic");
+      if (topic && TOPIC_MAP[topic]) setService(TOPIC_MAP[topic]);
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
